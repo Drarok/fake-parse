@@ -1,0 +1,22 @@
+{
+  "name": "fake-parse",
+  "version": "0.1.0",
+  "description": "Simple fake implementations of the Parse.com JavaScript API",
+  "main": "index.js",
+  "scripts": {
+    "test": "gulp test"
+  },
+  "author": "Mat Gadd <source@catchall.drarok.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "bluebird": "~2.10.1",
+    "browserify": "~11.2.0",
+    "gulp": "~3.9.0",
+    "gulp-jasmine": "~2.1.0",
+    "gulp-jscs": "~3.0.0",
+    "gulp-jscs-stylish": "~1.2.1",
+    "gulp-jshint": "~1.11.2",
+    "jshint-stylish": "~2.0.1",
+    "vinyl-source-stream": "~1.1.0"
+  }
+}
