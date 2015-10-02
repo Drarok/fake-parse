@@ -19,7 +19,7 @@ gulp.task('build', function () {
     .pipe(gulp.dest('./dist/js/'));
 });
 
-gulp.task('watch', ['build'], function () {
+gulp.task('build-watch', ['build'], function () {
   var paths = [
     'index.js',
     'lib/**/*.js'
@@ -43,10 +43,12 @@ gulp.task('standards', function () {
     .pipe(jshint.reporter('fail'));
 });
 
-gulp.task('test', function () {
+gulp.task('jasmine', function () {
   return gulp.src('./test/**/*.spec.js')
     .pipe(jasmine({
       verbose: true,
       includeStackTrace: true
     }));
 });
+
+gulp.task('test', ['standards', 'jasmine']);
