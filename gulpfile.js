@@ -51,4 +51,12 @@ gulp.task('jasmine', function () {
     }));
 });
 
+gulp.task('jasmine-watch', ['jasmine'], function () {
+  var paths = [
+    './test/**/*.spec.js',
+    './lib/**/*.js'
+  ];
+  return gulp.watch(paths, ['jasmine']);
+});
+
 gulp.task('test', ['standards', 'jasmine']);
