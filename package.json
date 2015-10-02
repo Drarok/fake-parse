@@ -1,6 +1,6 @@
 {
   "name": "fake-parse",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "description": "Simple fake implementations of the Parse.com JavaScript API",
   "repository": "Drarok/fake-parse",
   "main": "index.js",
