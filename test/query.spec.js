@@ -65,30 +65,43 @@ describe('FakeQuery', function () {
         });
       });
 
-      var completed = jasmine.createSpy('completed');
+      var complete = jasmine.createSpy('complete');
 
       query
         .each(callback)
-        .then(completed);
+        .then(complete);
 
-      expect(callback).not.toHaveBeenCalled();
-      expect(completed).not.toHaveBeenCalled();
+      var delayedPromise = function (delay) {
+        return new Promise(function (resolve, reject) {
+          setTimeout(resolve, delay);
+        });
+      };
 
-      setTimeout(function () {
-        resolveCurrentCallback();
-        expect(callback.calls.count()).toBe(1);
-        expect(completed).not.toHaveBeenCalled();
-      }, 10);
-
-      setTimeout(function () {
-        resolveCurrentCallback();
-        expect(callback.calls.count()).toBe(2);
-      }, 20);
-
-      setTimeout(function () {
-        expect(completed).toHaveBeenCalled();
-        done();
-      }, 30);
+      Promise.resolve()
+        .then(function () {
+          // We haven't let the event loop get a look in yet, nothing should have been run.
+          expect(callback).not.toHaveBeenCalled();
+          expect(complete).not.toHaveBeenCalled();
+          return delayedPromise(10);
+        }).then(function () {
+          // Thanks to the delay, callback should now have been called - but not complete.
+          expect(callback.calls.count()).toBe(1);
+          expect(complete).not.toHaveBeenCalled();
+          resolveCurrentCallback();
+          resolveCurrentCallback = null;
+          return delayedPromise(10);
+        }).then(function () {
+          // How callback will have been called a second time, but we're waiting for it to return
+          // before complete should be called.
+          expect(callback.calls.count()).toBe(2);
+          expect(complete).not.toHaveBeenCalled();
+          resolveCurrentCallback();
+          resolveCurrentCallback = null;
+          return delayedPromise(10);
+        }).then(function () {
+          // Now callback has returned, complete should have been called.
+          expect(complete).toHaveBeenCalled();
+        }).then(done, done.fail);
     });
   });
 
