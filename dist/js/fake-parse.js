@@ -3,11 +3,12 @@ module.exports = {
   initialize: function () {},
   MockData: require('./lib/mock-data'),
   Object: require('./lib/object'),
+  Promise: require('./lib/promise'),
   Query: require('./lib/query'),
   User: require('./lib/user')
 };
 
-},{"./lib/mock-data":3,"./lib/object":4,"./lib/query":5,"./lib/user":6}],2:[function(require,module,exports){
+},{"./lib/mock-data":3,"./lib/object":4,"./lib/promise":5,"./lib/query":6,"./lib/user":7}],2:[function(require,module,exports){
 module.exports = function backbone (options) {
   options = options || {};
 
@@ -446,7 +447,64 @@ These are not (yet) implemented:
 
 module.exports = FakeObject;
 
-},{"./backbone":2,"./mock-data":3,"bluebird":7,"util":11}],5:[function(require,module,exports){
+},{"./backbone":2,"./mock-data":3,"bluebird":8,"util":12}],5:[function(require,module,exports){
+var util = require('util');
+
+var Promise = require('bluebird');
+
+/*
+ * We have to alter the Promise prototype, else chaining won't work.
+ */
+
+Promise.prototype.always = Promise.prototype.finally;
+Promise.prototype.done = Promise.prototype.then;
+Promise.prototype.fail = Promise.prototype.error;
+
+function FakePromise(resolver) {
+  var _this = this;
+
+  var fakeResolver = function (resolve, reject) {
+    _this.resolve = resolve;
+    _this.reject = reject;
+    if (resolver) {
+      resolver.call(_this, resolve, reject);
+    }
+  };
+
+  // Major hack to let us subclass Promise from Bluebird.
+  var _constructor = this.constructor;
+  this.constructor = Promise;
+  Promise.call(this, fakeResolver);
+  this.constructor = _constructor;
+}
+
+util.inherits(FakePromise, Promise);
+
+/* Static methods */
+
+FakePromise.as = Promise.resolve;
+
+FakePromise.error = Promise.reject;
+
+FakePromise.is = function (obj) {
+  return !!(obj && obj.then);
+};
+
+FakePromise.when = function () {
+  var args = Array.prototype.slice.call(arguments);
+
+  if (args.length === 1 && Array.isArray(args[0])) {
+    args = args[0];
+  }
+
+  var p = Promise.all(args);
+  p.then = p.spread;
+  return p;
+};
+
+module.exports = FakePromise;
+
+},{"bluebird":8,"util":12}],6:[function(require,module,exports){
 var Promise = require('bluebird');
 
 var backbone = require('./backbone');
@@ -549,7 +607,7 @@ withinRadians
 
 module.exports = FakeQuery;
 
-},{"./backbone":2,"./mock-data":3,"bluebird":7}],6:[function(require,module,exports){
+},{"./backbone":2,"./mock-data":3,"bluebird":8}],7:[function(require,module,exports){
 var Promise = require('bluebird');
 
 var backbone = require('./backbone');
@@ -626,7 +684,7 @@ These methods aren't (yet) implemented:
   * signUp
 */
 
-},{"./backbone":2,"./object":4,"bluebird":7}],7:[function(require,module,exports){
+},{"./backbone":2,"./object":4,"bluebird":8}],8:[function(require,module,exports){
 (function (process,global){
 /* @preserve
  * The MIT License (MIT)
@@ -5510,7 +5568,7 @@ module.exports = ret;
 },{"./es5.js":14}]},{},[4])(4)
 });                    ;if (typeof window !== 'undefined' && window !== null) {                               window.P = window.Promise;                                                     } else if (typeof self !== 'undefined' && self !== null) {                             self.P = self.Promise;                                                         }
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":9}],8:[function(require,module,exports){
+},{"_process":10}],9:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -5535,7 +5593,7 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -5628,14 +5686,14 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 module.exports = function isBuffer(arg) {
   return arg && typeof arg === 'object'
     && typeof arg.copy === 'function'
     && typeof arg.fill === 'function'
     && typeof arg.readUInt8 === 'function';
 }
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 (function (process,global){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -6225,5 +6283,5 @@ function hasOwnProperty(obj, prop) {
 }
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./support/isBuffer":10,"_process":9,"inherits":8}]},{},[1])(1)
+},{"./support/isBuffer":11,"_process":10,"inherits":9}]},{},[1])(1)
 });
