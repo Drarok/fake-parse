@@ -2,6 +2,7 @@
   "name": "fake-parse",
   "version": "0.1.1",
   "description": "Simple fake implementations of the Parse.com JavaScript API",
+  "repository": "Drarok/fake-parse",
   "main": "index.js",
   "scripts": {
     "test": "gulp test"
