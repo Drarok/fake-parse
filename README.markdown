@@ -1,4 +1,4 @@
-# Fake Parse
+# Fake Parse [![Build Status](https://travis-ci.org/Drarok/fake-parse.svg?branch=develop)](https://travis-ci.org/Drarok/fake-parse)
 
 Simple fake implementations of the Parse.com JavaScript API.
 
