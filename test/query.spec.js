@@ -105,6 +105,32 @@ describe('FakeQuery', function () {
     });
   });
 
+  describe('count', function () {
+    beforeEach(function () {
+      MockData.setData('Person', [
+        new Person({ name: 'Sideshow Bob' }),
+        new Person({ name: 'Sideshow Mel' })
+      ]);
+    });
+
+    it('should count all objects', function (done) {
+      query.count()
+        .then(function (count) {
+          expect(count).toEqual(2);
+        }).then(done, done.fail);
+    });
+
+    it('should ignore limit and skip', function (done) {
+      query
+        .limit(1)
+        .skip(2)
+        .count()
+        .then(function (count) {
+          expect(count).toEqual(2);
+        }).then(done, done.fail);
+    });
+  });
+
   describe('find', function () {
     var people;
 
@@ -127,8 +153,84 @@ describe('FakeQuery', function () {
           expect(data.length).toBe(2);
           expect(data[0]).toBe(people[0]);
           expect(data[1]).toBe(people[1]);
-          done();
-        }, done.fail);
+        }).then(done, done.fail);
+    });
+  });
+
+  describe('get', function () {
+    beforeEach(function () {
+      MockData.setData('Person', [
+        new Person({ id: 'person-bob', name: 'Sideshow Bob' }),
+        new Person({ id: 'person-mel', name: 'Sideshow Mel' })
+      ]);
+    });
+
+    it('should return undefined if no such object', function (done) {
+      query
+        .get('person-none')
+        .then(function (person) {
+          expect(person).toBe(undefined);
+        }).then(done, done.fail);
+    });
+
+    it('should return object when valid id given', function (done) {
+      query
+        .get('person-bob')
+        .then(function (person) {
+          expect(person).toEqual(jasmine.any(Person));
+          expect(person.get('name')).toEqual('Sideshow Bob');
+        }).then(done, done.fail);
+    });
+
+    it('should ignore limit and skip', function (done) {
+      query
+        .limit(1)
+        .skip(2)
+        .get('person-bob')
+        .then(function (person) {
+          expect(person).toEqual(jasmine.any(Person));
+          expect(person.get('name')).toEqual('Sideshow Bob');
+        }).then(done, done.fail);
+    });
+  });
+
+  describe('limit and skip', function () {
+    beforeEach(function () {
+      var data = [];
+      for (var i = 0; i < 200; ++i) {
+        data.push(new Person({ name: 'Person-' + i.toString() }));
+      }
+
+      MockData.setData('Person', data);
+    });
+
+    it('should default limit to 100', function (done) {
+      query
+        .find()
+        .then(function (people) {
+          expect(people.length).toBe(100);
+        }).then(done, done.fail);
+    });
+
+    it('should allow limit to be changed', function (done) {
+      query
+        .limit(10)
+        .find()
+        .then(function (people) {
+          expect(people.length).toBe(10);
+        }).then(done, done.fail);
+    });
+
+    it('should skip the given number', function (done) {
+      query
+        .limit(10)
+        .skip(10)
+        .find()
+        .then(function (people) {
+          expect(people.length).toBe(10);
+          expect(people[0]).toEqual(jasmine.any(Person));
+          expect(people[0].get('name')).toEqual('Person-10');
+        }).then(done, done.fail);
     });
   });
 });
