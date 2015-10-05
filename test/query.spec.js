@@ -193,5 +193,44 @@ describe('FakeQuery', function () {
         }).then(done, done.fail);
     });
   });
+
+  describe('limit and skip', function () {
+    beforeEach(function () {
+      var data = [];
+      for (var i = 0; i < 200; ++i) {
+        data.push(new Person({ name: 'Person-' + i.toString() }));
+      }
+
+      MockData.setData('Person', data);
+    });
+
+    it('should default limit to 100', function (done) {
+      query
+        .find()
+        .then(function (people) {
+          expect(people.length).toBe(100);
+        }).then(done, done.fail);
+    });
+
+    it('should allow limit to be changed', function (done) {
+      query
+        .limit(10)
+        .find()
+        .then(function (people) {
+          expect(people.length).toBe(10);
+        }).then(done, done.fail);
+    });
+
+    it('should skip the given number', function (done) {
+      query
+        .limit(10)
+        .skip(10)
+        .find()
+        .then(function (people) {
+          expect(people.length).toBe(10);
+          expect(people[0]).toEqual(jasmine.any(Person));
+          expect(people[0].get('name')).toEqual('Person-10');
+        }).then(done, done.fail);
+    });
   });
 });
