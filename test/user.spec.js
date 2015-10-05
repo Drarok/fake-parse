@@ -48,6 +48,25 @@ describe('User', function () {
     });
   });
 
+  describe('signUp', function () {
+    it('should create a User object', function (done) {
+      User.signUp('fake-user', 'password')
+        .then(function (user) {
+          expect(user).toEqual(jasmine.any(User));
+          expect(user.getUsername()).toEqual('fake-user');
+        }).then(done, done.fail);
+    });
+
+    it('should set current user', function (done) {
+      User.signUp('fake-user', 'password')
+        .then(function () {
+          var user = User.current();
+          expect(user).toEqual(jasmine.any(User));
+          expect(user.getUsername()).toEqual('fake-user');
+        }).then(done, done.fail);
+    });
+  });
+
   describe('accessors', function () {
     var user;
 
