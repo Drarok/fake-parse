@@ -106,12 +106,14 @@ describe('FakeQuery', function () {
   });
 
   describe('count', function () {
-    it('should count all objects', function (done) {
+    beforeEach(function () {
       MockData.setData('Person', [
         new Person({ name: 'Sideshow Bob' }),
         new Person({ name: 'Sideshow Mel' })
       ]);
+    });
 
+    it('should count all objects', function (done) {
       query.count()
         .then(function (count) {
           expect(count).toEqual(2);
@@ -119,11 +121,6 @@ describe('FakeQuery', function () {
     });
 
     it('should ignore limit and skip', function (done) {
-      MockData.setData('Person', [
-        new Person({ name: 'Sideshow Bob' }),
-        new Person({ name: 'Sideshow Mel' })
-      ]);
-
       query
         .limit(1)
         .skip(2)
@@ -156,8 +153,45 @@ describe('FakeQuery', function () {
           expect(data.length).toBe(2);
           expect(data[0]).toBe(people[0]);
           expect(data[1]).toBe(people[1]);
-          done();
-        }, done.fail);
+        }).then(done, done.fail);
     });
+  });
+
+  describe('get', function () {
+    beforeEach(function () {
+      MockData.setData('Person', [
+        new Person({ id: 'person-bob', name: 'Sideshow Bob' }),
+        new Person({ id: 'person-mel', name: 'Sideshow Mel' })
+      ]);
+    });
+
+    it('should return undefined if no such object', function (done) {
+      query
+        .get('person-none')
+        .then(function (person) {
+          expect(person).toBe(undefined);
+        }).then(done, done.fail);
+    });
+
+    it('should return object when valid id given', function (done) {
+      query
+        .get('person-bob')
+        .then(function (person) {
+          expect(person).toEqual(jasmine.any(Person));
+          expect(person.get('name')).toEqual('Sideshow Bob');
+        }).then(done, done.fail);
+    });
+
+    it('should ignore limit and skip', function (done) {
+      query
+        .limit(1)
+        .skip(2)
+        .get('person-bob')
+        .then(function (person) {
+          expect(person).toEqual(jasmine.any(Person));
+          expect(person.get('name')).toEqual('Sideshow Bob');
+        }).then(done, done.fail);
+    });
+  });
   });
 });
