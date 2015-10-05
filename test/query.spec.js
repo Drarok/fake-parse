@@ -105,6 +105,35 @@ describe('FakeQuery', function () {
     });
   });
 
+  describe('count', function () {
+    it('should count all objects', function (done) {
+      MockData.setData('Person', [
+        new Person({ name: 'Sideshow Bob' }),
+        new Person({ name: 'Sideshow Mel' })
+      ]);
+
+      query.count()
+        .then(function (count) {
+          expect(count).toEqual(2);
+        }).then(done, done.fail);
+    });
+
+    it('should ignore limit and skip', function (done) {
+      MockData.setData('Person', [
+        new Person({ name: 'Sideshow Bob' }),
+        new Person({ name: 'Sideshow Mel' })
+      ]);
+
+      query
+        .limit(1)
+        .skip(2)
+        .count()
+        .then(function (count) {
+          expect(count).toEqual(2);
+        }).then(done, done.fail);
+    });
+  });
+
   describe('find', function () {
     var people;
 
