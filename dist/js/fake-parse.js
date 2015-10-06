@@ -29,11 +29,22 @@ module.exports = function backbone (options) {
 },{}],3:[function(require,module,exports){
 var mockData = {};
 
-function setData(className, data) {
+function resolveClass(objectClass) {
+  if (objectClass && objectClass.className) {
+    objectClass = objectClass.className;
+  }
+
+  return objectClass;
+}
+
+function setData(objectClass, data) {
+  var className = resolveClass(objectClass);
   mockData[className] = data;
 }
 
-function getData(className) {
+function getData(objectClass) {
+  var className = resolveClass(objectClass);
+
   if (!mockData[className]) {
     mockData[className] = [];
   }
@@ -41,7 +52,9 @@ function getData(className) {
   return mockData[className];
 }
 
-function clearData(className) {
+function clearData(objectClass) {
+  var className = resolveClass(objectClass);
+
   if (className) {
     setData(className, null);
   } else {
